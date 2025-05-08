@@ -1,0 +1,65 @@
+<!-- Fichier : index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur de Post LinkedIn IA</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      background-color: #f9f9f9;
+    }
+    h1 { text-align: center; }
+    textarea, button {
+      width: 100%;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 1rem;
+    }
+    #output {
+      background: #fff;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Générateur de Post LinkedIn</h1>
+  <textarea id="topic" placeholder="Entrez un sujet..." rows="4"></textarea>
+  <button onclick="generatePost()">Générer le post</button>
+  <div id="output"></div>
+
+  <script>
+    async function generatePost() {
+      const topic = document.getElementById('topic').value;
+      const output = document.getElementById('output');
+      output.innerText = '⏳ Génération en cours...';
+
+      try {
+        const res = await fetch('https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-1.3B', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer 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'
+          },
+          body: JSON.stringify({
+            inputs: `Rédige un post LinkedIn structuré en Thème-Problème-Personne-Solution. Sujet : ${topic}. Sois clair, précis, sans jargon, avec un hook fort au début et une punchline à la fin.`
+          })
+        });
+
+        const data = await res.json();
+        const result = data[0]?.generated_text || '❌ Erreur : aucun texte généré.';
+        output.innerText = result;
+      } catch (error) {
+        output.innerText = '❌ Erreur lors de la génération du contenu.';
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>

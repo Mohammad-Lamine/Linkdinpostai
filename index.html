@@ -1,4 +1,4 @@
-<!-- Fichier : index.html -->
+<!-- Fichier : index.html avec appel à un serveur proxy backend -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -26,6 +26,14 @@
       border: 1px solid #ccc;
       white-space: pre-wrap;
     }
+    .copier {
+      background-color: #0077b6;
+      color: white;
+      border: none;
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -33,6 +41,7 @@
   <textarea id="topic" placeholder="Entrez un sujet..." rows="4"></textarea>
   <button onclick="generatePost()">Générer le post</button>
   <div id="output"></div>
+  <button class="copier" onclick="copierTexte()">📋 Copier le texte</button>
 
   <script>
     async function generatePost() {
@@ -41,24 +50,28 @@
       output.innerText = '⏳ Génération en cours...';
 
       try {
-        const res = await fetch('https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-1.3B', {
+        const res = await fetch('https://linkedin-ai.onrender.com/generate', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer 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'
-          },
-          body: JSON.stringify({
-            inputs: `Rédige un post LinkedIn structuré en Thème-Problème-Personne-Solution. Sujet : ${topic}. Sois clair, précis, sans jargon, avec un hook fort au début et une punchline à la fin.`
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic })
         });
 
         const data = await res.json();
-        const result = data[0]?.generated_text || '❌ Erreur : aucun texte généré.';
+        const result = data.generatedPost || '❌ Erreur : aucun texte généré.';
         output.innerText = result;
       } catch (error) {
         output.innerText = '❌ Erreur lors de la génération du contenu.';
         console.error(error);
       }
+    }
+
+    function copierTexte() {
+      const texte = document.getElementById("output").innerText;
+      navigator.clipboard.writeText(texte).then(() => {
+        alert("Texte copié dans le presse-papier !");
+      }).catch(err => {
+        alert("Erreur lors de la copie.");
+      });
     }
   </script>
 </body>
